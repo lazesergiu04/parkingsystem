@@ -69,9 +69,30 @@ public class TicketDAO {
         }
     }
 
+    /**In the updateTicket method I add the variable reccurentVN that represents
+     * the VehicleNumber
+     *
+     * Execute Database query to count the number of occurrences  for the same VN
+     * @param ticket
+     * @return
+     */
+
     public boolean updateTicket(Ticket ticket) {
         Connection con = null;
+        int reccurentVN = 0;
         try {
+            con = dataBaseConfig.getConnection();
+            PreparedStatement getPs = con.prepareStatement(DBConstants.GET_RECURRENT_NUMBER);
+            getPs.setString(1, ticket.getVehicleRegNumber());
+            ResultSet resultSet= getPs.executeQuery();
+            if (resultSet.next()){
+                reccurentVN = resultSet.getInt(1);
+            }
+            if (reccurentVN > 2){
+                ticket.applyDiscount();
+            }
+
+
             con = dataBaseConfig.getConnection();
             PreparedStatement ps = con.prepareStatement(DBConstants.UPDATE_TICKET);
             ps.setDouble(1, ticket.getPrice());
