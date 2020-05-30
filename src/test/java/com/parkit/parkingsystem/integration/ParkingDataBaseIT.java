@@ -15,8 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,10 +59,7 @@ public class ParkingDataBaseIT {
 
     @Test
     public void testParkingACar() throws Exception {
-
         //Check the number of available spots before processIncomingVehicle();
-        //and make assertion that the vehicle number has been saved in the DB
-
         int beforeParkingSpots = parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR);
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
 
@@ -79,13 +75,26 @@ public class ParkingDataBaseIT {
         assertNotEquals(beforeParkingSpots,afterParkingSpots);
     }
 
+    /**Test that checks if the fare is generated
+     * and the out time are populated in the database
+     *
+     *
+     * @throws Exception
+     */
     @Test
     public void testParkingLotExit() throws Exception {
+        String vehNumber = inputReaderUtil.readVehicleRegistrationNumber();
         testParkingACar();
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
-        parkingService.processExitingVehicle();
-        //TODO: check that the fare generated and out time are populated correctly in the database
+        //Add a delay of 2 seconds
+        Thread.sleep(2000);
 
+        parkingService.processExitingVehicle();
+
+        //check generated fare is not 0
+        assertNotEquals(0, ticketDAO.getTicket(vehNumber).getPrice());
+        //check out time is not null
+        assertNotNull(ticketDAO.getTicket(vehNumber).getOutTime());
     }
 
 }
