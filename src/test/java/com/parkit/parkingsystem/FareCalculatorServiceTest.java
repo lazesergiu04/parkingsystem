@@ -57,7 +57,7 @@ public class FareCalculatorServiceTest {
     }
 
     @Test
-    public void calculateFareUnkownType(){
+    public void calculateFareUnknownType(){
         Date inTime = new Date();
         inTime.setTime( System.currentTimeMillis() - (  60 * 60 * 1000) );
         Date outTime = new Date();
@@ -123,5 +123,41 @@ public class FareCalculatorServiceTest {
         fareCalculatorService.calculateFare(ticket, false);
         assertEquals( (24 * Fare.CAR_RATE_PER_HOUR) , ticket.getPrice());
     }
+    /**
+     * Calculate fare with halfHours set to true
+     */
+
+
+    @Test
+    public void calculateFareCareWithLessThanHalfHourParkingTime(){
+        Date inTime = new Date();
+        inTime.setTime(System.currentTimeMillis()-(21 * 60 * 1000));//21 min parking time
+        Date outTime = new Date();
+        ParkingSpot parkingSpot = new ParkingSpot(1,ParkingType.CAR,false);
+        ticket.setInTime(inTime);
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+
+        fareCalculatorService.calculateFare(ticket, true);//Half hour is apply
+
+        assertEquals(0,ticket.getPrice());
+    }
+
+    @Test
+    public void calculateFareCarWithMoreThanHalfHourParkingTime(){
+        Date inTime = new Date();
+        inTime.setTime(System.currentTimeMillis()-(45 * 60 * 1000));//45 min parking time
+        Date outTime = new Date();
+        ParkingSpot parkingSpot = new ParkingSpot(1,ParkingType.CAR,false);
+        ticket.setInTime(inTime);
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+
+        fareCalculatorService.calculateFare(ticket, true);//Half hour is apply
+
+        assertEquals(0.25 * Fare.CAR_RATE_PER_HOUR,ticket.getPrice());
+
+    }
+
 
 }
