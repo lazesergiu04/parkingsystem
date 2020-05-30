@@ -58,4 +58,11 @@ public class Ticket {
     public void setOutTime(Date outTime) {
         this.outTime = outTime;
     }
+
+    public void applyDiscount() {
+        price -= price * 0.05;
+        System.out.println(" Welcome back, a 5% discount has been applied. ");
+
+    }
+
 }
