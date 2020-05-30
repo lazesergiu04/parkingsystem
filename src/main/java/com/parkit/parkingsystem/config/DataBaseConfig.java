@@ -3,11 +3,17 @@ package com.parkit.parkingsystem.config;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.*;
+import java.util.Properties;
 
 public class DataBaseConfig {
 
     private static final Logger logger = LogManager.getLogger("DataBaseConfig");
+    private static final String dbConfigFilePath = "./DBConfig.properties";
+
 
     public Connection getConnection() throws ClassNotFoundException, SQLException {
         logger.info("Create DB connection");
@@ -47,5 +53,31 @@ public class DataBaseConfig {
                 logger.error("Error while closing result set",e);
             }
         }
+    }
+
+    /**Create method to define the Database properties for the url,
+     * user and the password.
+     *
+     * add the dbConfigFilePath to access the properties in the database
+     *
+     * @return
+     */
+
+    private Properties dataBaseProperties() {
+        Properties prop = new Properties();
+        try (OutputStream output = new FileOutputStream(dbConfigFilePath)) {
+
+            // set the properties value
+            prop.setProperty("db.url",
+                    "jdbc:mysql://localhost:3306/prod?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
+            prop.setProperty("db.user", "root");
+            prop.setProperty("db.password", "rootroot");
+
+            // save properties to project root folder
+            prop.store(output, null);
+        } catch (IOException io) {
+            logger.error("Failed to store data base properties", io);
+        }
+        return prop;
     }
 }
