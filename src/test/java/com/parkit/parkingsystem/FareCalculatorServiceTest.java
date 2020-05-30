@@ -159,5 +159,38 @@ public class FareCalculatorServiceTest {
 
     }
 
+    @Test
+    public void CalculateFareBikeWithLessThanHalfHourParkingTime(){
+        Date inTime = new Date();
+        inTime.setTime(System.currentTimeMillis()-(21 * 60 * 1000));//21 min parking time
+        Date outTime = new Date();
+        ParkingSpot parkingSpot = new ParkingSpot(1,ParkingType.BIKE,false);
+
+        ticket.setInTime(inTime);
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+        fareCalculatorService.calculateFare(ticket, true);//Half hour is apply
+
+        assertEquals(0,ticket.getPrice());
+
+    }
+    @Test
+    public void CalculateFareBikeWithMoreThanHalfHourParkingTime(){
+        Date inTime = new Date();
+        inTime.setTime(System.currentTimeMillis()-(45 * 60 * 1000));//45 min parking time
+        Date outTime = new Date();
+        ParkingSpot parkingSpot = new ParkingSpot(1,ParkingType.BIKE,false);
+
+        ticket.setInTime(inTime);
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+
+        fareCalculatorService.calculateFare(ticket, true);//Half hour is apply
+
+        assertEquals(0.25* Fare.BIKE_RATE_PER_HOUR,ticket.getPrice());
+    }
+
+
+
 
 }
