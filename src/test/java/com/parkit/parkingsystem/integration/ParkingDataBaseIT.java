@@ -1,5 +1,6 @@
 package com.parkit.parkingsystem.integration;
 
+import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.dao.ParkingSpotDAO;
 import com.parkit.parkingsystem.dao.TicketDAO;
 import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
@@ -13,6 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,15 +51,36 @@ public class ParkingDataBaseIT {
 
     }
 
+    /** test method  for the processIncomingVehicle()
+     * that checks if the ticked is saved in the Database
+     * and if the availability of parking slots has been updated
+     *
+     * @throws Exception
+     */
+
     @Test
-    public void testParkingACar(){
+    public void testParkingACar() throws Exception {
+
+        //Check the number of available spots before processIncomingVehicle();
+        //and make assertion that the vehicle number has been saved in the DB
+
+        int beforeParkingSpots = parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR);
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+
         parkingService.processIncomingVehicle();
-        //TODO: check that a ticket is actualy saved in DB and Parking table is updated with availability
+
+        int afterParkingSpots = parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR);
+        String vegNumber = inputReaderUtil.readVehicleRegistrationNumber();
+
+
+        //Check if the ticket has been saved
+        assertEquals(vegNumber, ticketDAO.getTicket(vegNumber).getVehicleRegNumber());
+        //Check if DB is updated with availability
+        assertNotEquals(beforeParkingSpots,afterParkingSpots);
     }
 
     @Test
-    public void testParkingLotExit(){
+    public void testParkingLotExit() throws Exception {
         testParkingACar();
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
         parkingService.processExitingVehicle();
